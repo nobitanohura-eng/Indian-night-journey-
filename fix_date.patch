@@ -1,0 +1,13 @@
+--- src/components/screens/VirtualTicket.tsx
++++ src/components/screens/VirtualTicket.tsx
+@@ -52,2 +52,5 @@
+ 
++  const today = new Date();
++  const formattedDate = `${today.getDate()} ${today.toLocaleString('en-US', { month: 'short' }).toUpperCase()} ${today.getFullYear()}`;
++
+   if (!ticket) return null;
+@@ -155,3 +158,3 @@
+                     <span className="text-[8px] md:text-[9px] uppercase tracking-[0.15em] font-mono text-[#2c241b]/50 mb-0.5">DATE</span>
+-                    <span className="text-xs md:text-sm font-bold font-mono text-[#2c241b] tracking-wider">14 AUG 2026</span>
++                    <span className="text-xs md:text-sm font-bold font-mono text-[#2c241b] tracking-wider">{formattedDate}</span>
+                   </div>
