@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useJourney } from '../../store/JourneyContext';
 import { BusChassis } from '../effects/BusChassis';
+import { HighwayScenery } from '../effects/HighwayScenery';
 import { CanvasRainLayer } from '../effects/CanvasRainLayer';
 
 export function WindowView() {
   const { isRainy } = useJourney();
   const [isPhoneOpen, setIsPhoneOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    const introTimer = setTimeout(() => setShowIntro(false), 4200);
+    return () => clearTimeout(introTimer);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -20,52 +27,90 @@ export function WindowView() {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="absolute inset-0 w-full h-full bg-[#050505] overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="absolute inset-0 w-full h-full bg-[#050505] overflow-hidden select-none"
     >
       <BusChassis>
-        {/* Base Window Image with Parallax Zoom */}
+        {/* 1. Dynamic Highway Scenery Layer (Outside View) */}
+        <HighwayScenery view="WINDOW" />
+
+        {/* 2. Base Window Seat Image with smooth Parallax zoom */}
         <motion.div 
-          animate={{ scale: [1.05, 1.15, 1.05], x: ['0%', '-2%', '0%'] }}
+          animate={{ scale: [1.015, 1.035, 1.015], x: ['0%', '-0.4%', '0%'] }}
           transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute inset-0 bg-cover bg-center opacity-100 origin-center"
+          className="absolute inset-0 bg-cover bg-center opacity-100 origin-center pointer-events-none"
           style={{ backgroundImage: "url('/window-seat.png')" }}
         />
-        
-        {/* Rain Layer masked to window and synced with Parallax Zoom */}
-        <motion.div 
-          animate={{ scale: [1.05, 1.15, 1.05], x: ['0%', '-2%', '0%'] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute inset-0 pointer-events-none mix-blend-screen opacity-100 origin-center"
+
+        {/* 3. Window Glass Atmospheric Reflection */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-tr from-cyan-950/15 via-transparent to-amber-100/10 pointer-events-none"
           style={{ 
-            maskImage: 'radial-gradient(ellipse at 45% 45%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 90%)',
-            WebkitMaskImage: 'radial-gradient(ellipse at 45% 45%, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 90%)'
+            maskImage: 'radial-gradient(ellipse at 48% 46%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 55%, rgba(0,0,0,0) 90%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at 48% 46%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 55%, rgba(0,0,0,0) 90%)'
           }}
-        >
-          {isRainy && <CanvasRainLayer />}
-        </motion.div>
-
-        {/* Cinematic Vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_rgba(0,0,0,0.8)_100%)] pointer-events-none" />
-
-        {/* Phone Hotspot (Left Side) */}
-        <button
-          aria-label="Open phone"
-          onClick={() => setIsPhoneOpen(true)}
-          className="absolute bottom-[5%] left-[2%] w-[40%] h-[40%] z-20 cursor-pointer bg-white/0 hover:bg-white/5 active:bg-white/10 transition-colors rounded-3xl md:bottom-[10%] md:left-[5%] md:w-[30%] md:h-[35%]"
         />
 
-        {/* Phone UI Overlay */}
+        {/* 4. Realistic Rain on Glass Layer (Interactive touch & wipe) */}
+        {isRainy && (
+          <div 
+            className="absolute inset-0 pointer-events-auto opacity-100"
+            style={{ 
+              maskImage: 'radial-gradient(ellipse at 48% 46%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 55%, rgba(0,0,0,0) 90%)',
+              WebkitMaskImage: 'radial-gradient(ellipse at 48% 46%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 55%, rgba(0,0,0,0) 90%)'
+            }}
+          >
+            <CanvasRainLayer />
+          </div>
+        )}
+
+        {/* 5. Hindi Nostalgic Atmospheric Intro Overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-15">
+          <AnimatePresence>
+            {showIntro && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.96 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="text-center px-4 select-none"
+              >
+                <span className="text-[10px] md:text-xs font-mono text-amber-400/90 tracking-[0.25em] uppercase block mb-1">
+                  WINDOW SEAT
+                </span>
+                <p 
+                  className="text-white/90 text-xl sm:text-2xl md:text-3xl tracking-wide drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
+                  style={{ fontFamily: '"Yatra One", system-ui' }}
+                >
+                  खिड़की वाली सीट
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* 6. Cinematic Soft Vignette */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_25%,_rgba(0,0,0,0.8)_100%)] pointer-events-none" />
+
+        {/* 7. Phone Hotspot (Nostalgic Missed Call Phone on Left Seat) */}
+        <button
+          aria-label="Open phone to check message"
+          onClick={() => setIsPhoneOpen(true)}
+          className="absolute bottom-[5%] left-[2%] w-[40%] h-[40%] z-20 cursor-pointer bg-white/0 hover:bg-white/5 active:bg-white/10 transition-colors rounded-3xl md:bottom-[10%] md:left-[5%] md:w-[30%] md:h-[35%]"
+          title="Click to check phone message from Maa"
+        />
+
+        {/* 8. Phone UI Overlay Modal */}
         <AnimatePresence>
           {isPhoneOpen && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2 }}
               className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
               onClick={() => setIsPhoneOpen(false)}
             >
@@ -73,9 +118,9 @@ export function WindowView() {
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ duration: 0.3, delay: 0.05 }}
+                transition={{ duration: 0.2 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-[260px] h-[480px] bg-[#1a1a1a] rounded-[35px] border-[4px] border-[#0a0a0a] shadow-2xl relative overflow-hidden flex flex-col pb-6"
+                className="w-[240px] sm:w-[260px] h-[440px] sm:h-[480px] max-h-[92vh] landscape:scale-[0.68] landscape:sm:scale-85 origin-center bg-[#1a1a1a] rounded-[30px] sm:rounded-[35px] border-[4px] border-[#0a0a0a] shadow-2xl relative overflow-hidden flex flex-col pb-4 sm:pb-6"
               >
                  {/* Top Speaker Slit */}
                  <div className="w-12 h-1.5 bg-black rounded-full mx-auto mt-4 mb-2 opacity-80" />
@@ -105,7 +150,7 @@ export function WindowView() {
                     </div>
                  </div>
 
-                 {/* Physical-looking Lock Button representing keypad area */}
+                 {/* Lock Button */}
                  <div className="px-4 mt-auto">
                     <button
                       onClick={() => setIsPhoneOpen(false)}

@@ -1,28 +1,26 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Route, Ticket, ViewMode, Playlist } from '../types';
+import { MUSIC_PLAYLISTS, HORN_TRACKS } from '../constants/audio';
 
 export type AppState = 'SPLASH' | 'SELECTION' | 'TICKET' | 'BOARDING' | 'JOURNEY';
 
 export const ROUTES: Route[] = [
-  { id: 'aurangabad-dehri', from: 'AURANGABAD', to: 'DEHRI', highway: 'INJ-BR-01', departureTime: '22:45', duration: '01h 30m', nextStop: 'BARUN', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-rafiganj', from: 'AURANGABAD', to: 'RAFIGANJ', highway: 'INJ-BR-02', departureTime: '23:15', duration: '01h 15m', nextStop: 'JAMHOR', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-nabinagar', from: 'AURANGABAD', to: 'NABINAGAR', highway: 'INJ-BR-03', departureTime: '22:30', duration: '01h 30m', nextStop: 'BARUN', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-daudnagar', from: 'AURANGABAD', to: 'DAUDNAGAR', highway: 'INJ-BR-04', departureTime: '23:00', duration: '01h 25m', nextStop: 'OBRA', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-deo', from: 'AURANGABAD', to: 'DEO', highway: 'INJ-BR-05', departureTime: '22:20', duration: '01h 20m', nextStop: 'KUTUMBA', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-amba', from: 'AURANGABAD', to: 'AMBA', highway: 'INJ-BR-06', departureTime: '22:50', duration: '01h 10m', nextStop: 'KUTUMBA', type: 'NIGHT SERVICE' },
-  { id: 'dehri-daudnagar', from: 'DEHRI', to: 'DAUDNAGAR', highway: 'INJ-BR-07', departureTime: '23:30', duration: '01h 00m', nextStop: 'NASRIGANJ', type: 'NIGHT SERVICE' },
-  { id: 'dehri-rafiganj', from: 'DEHRI', to: 'RAFIGANJ', highway: 'INJ-BR-08', departureTime: '22:40', duration: '01h 40m', nextStop: 'AURANGABAD SIDE', type: 'NIGHT SERVICE' },
-  { id: 'rafiganj-gaya', from: 'RAFIGANJ', to: 'GAYA', highway: 'INJ-BR-09', departureTime: '23:40', duration: '01h 50m', nextStop: 'SHERGHATI', type: 'NIGHT SERVICE' },
-  { id: 'rafiganj-aurangabad', from: 'RAFIGANJ', to: 'AURANGABAD', highway: 'INJ-BR-10', departureTime: '22:55', duration: '01h 15m', nextStop: 'JAMHOR', type: 'NIGHT SERVICE' },
-  { id: 'daudnagar-aurangabad', from: 'DAUDNAGAR', to: 'AURANGABAD', highway: 'INJ-BR-11', departureTime: '23:10', duration: '01h 25m', nextStop: 'OBRA', type: 'NIGHT SERVICE' },
-  { id: 'daudnagar-dehri', from: 'DAUDNAGAR', to: 'DEHRI', highway: 'INJ-BR-12', departureTime: '00:05', duration: '01h 00m', nextStop: 'NASRIGANJ', type: 'NIGHT SERVICE' },
-  { id: 'nabinagar-aurangabad', from: 'NABINAGAR', to: 'AURANGABAD', highway: 'INJ-BR-13', departureTime: '22:35', duration: '01h 30m', nextStop: 'BARUN', type: 'NIGHT SERVICE' },
-  { id: 'nabinagar-dehri', from: 'NABINAGAR', to: 'DEHRI', highway: 'INJ-BR-14', departureTime: '23:20', duration: '02h 05m', nextStop: 'BARUN', type: 'NIGHT SERVICE' },
-  { id: 'obra-daudnagar', from: 'OBRA', to: 'DAUDNAGAR', highway: 'INJ-BR-15', departureTime: '23:50', duration: '00h 35m', nextStop: 'DAUDNAGAR', type: 'NIGHT SERVICE' },
-  { id: 'obra-aurangabad', from: 'OBRA', to: 'AURANGABAD', highway: 'INJ-BR-16', departureTime: '22:55', duration: '01h 10m', nextStop: 'BARUN', type: 'NIGHT SERVICE' },
-  { id: 'aurangabad-gaya', from: 'AURANGABAD', to: 'GAYA', highway: 'INJ-BR-17', departureTime: '22:30', duration: '02h 30m', nextStop: 'RAFIGANJ', type: 'NIGHT EXPRESS' },
-  { id: 'dehri-gaya', from: 'DEHRI', to: 'GAYA', highway: 'INJ-BR-18', departureTime: '21:45', duration: '03h 30m', nextStop: 'AURANGABAD', type: 'NIGHT EXPRESS' }
+  { id: 'delhi-manali', from: 'DELHI', to: 'MANALI', highway: 'NH 44 (Himalayan Rider)', departureTime: '21:30', duration: '12h 00m', nextStop: 'CHANDIGARH', type: 'VOLVO AC SLEEPER' },
+  { id: 'mumbai-goa', from: 'MUMBAI', to: 'GOA', highway: 'NH 66 (Konkan Highway)', departureTime: '20:45', duration: '11h 30m', nextStop: 'CHIPLUN', type: 'DELUXE SLEEPER' },
+  { id: 'bangalore-ooty', from: 'BANGALORE', to: 'OOTY', highway: 'NH 275 (Nilgiri Ghats)', departureTime: '22:15', duration: '07h 45m', nextStop: 'MYSORE', type: 'NIGHT EXPRESS' },
+  { id: 'jaipur-jodhpur', from: 'JAIPUR', to: 'JODHPUR', highway: 'NH 48 (Marwar Highway)', departureTime: '22:00', duration: '06h 30m', nextStop: 'AJMER', type: 'ROYAL EXPRESS' },
+  { id: 'kolkata-siliguri', from: 'KOLKATA', to: 'SILIGURI', highway: 'NH 12 (North Bengal)', departureTime: '21:00', duration: '11h 00m', nextStop: 'MALDA', type: 'EXPRESS SLEEPER' },
+  { id: 'patna-ranchi', from: 'PATNA', to: 'RANCHI', highway: 'NH 20 (Chota Nagpur)', departureTime: '22:30', duration: '08h 15m', nextStop: 'HAZARIBAGH', type: 'DELUXE NIGHT BUS' },
+  { id: 'chandigarh-shimla', from: 'CHANDIGARH', to: 'SHIMLA', highway: 'NH 5 (Himalayan Queen)', departureTime: '23:00', duration: '04h 00m', nextStop: 'KALKA', type: 'DELUXE EXPRESS' },
+  { id: 'pune-mahabaleshwar', from: 'PUNE', to: 'MAHABALESHWAR', highway: 'NH 48 (Western Ghats)', departureTime: '23:15', duration: '03h 45m', nextStop: 'WAI', type: 'NIGHT SERVICE' }
 ];
+
+interface HotkeyToast {
+  id: number;
+  label: string;
+  sub?: string;
+  icon: string;
+}
 
 interface JourneyState {
   appState: AppState;
@@ -40,13 +38,17 @@ interface JourneyState {
   
   isRainy: boolean;
   setIsRainy: (isRainy: boolean) => void;
+  toggleRain: () => void;
   
   hornActive: boolean;
   triggerHorn: () => void;
   
+  dipperActive: boolean;
+  triggerDipper: () => void;
+  
   passengers: number;
   
-  // Audio state
+  // Audio & Music state
   isSharedView: boolean;
   setIsSharedView: (v: boolean) => void;
   
@@ -54,13 +56,25 @@ interface JourneyState {
   setIsChaiBreak: (v: boolean) => void;
 
   isPlaying: boolean;
-  setIsPlaying: (playing: boolean) => void;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+  togglePlay: () => void;
   
   activePlaylist: Playlist | null;
   setActivePlaylist: React.Dispatch<React.SetStateAction<Playlist | null>>;
   
   currentTrackIndex: number;
   setCurrentTrackIndex: React.Dispatch<React.SetStateAction<number>>;
+  nextTrack: () => void;
+  prevTrack: () => void;
+  
+  // Hotkey notification toast & shortcuts modal
+  hotkeyToast: HotkeyToast | null;
+  showShortcutsModal: boolean;
+  setShowShortcutsModal: (show: boolean) => void;
+  
+  isZenMode: boolean;
+  setIsZenMode: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleZenMode: () => void;
   
   ambientVolumes: {
     engine: number;
@@ -80,13 +94,36 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<ViewMode>('WINDOW');
   const [isRainy, setIsRainy] = useState(false);
   const [hornActive, setHornActive] = useState(false);
+  const [dipperActive, setDipperActive] = useState(false);
   const [passengers, setPassengers] = useState(42);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isChaiBreak, setIsChaiBreak] = useState(false);
-  const [activePlaylist, setActivePlaylist] = useState<Playlist | null>(null);
+  const [activePlaylist, setActivePlaylist] = useState<Playlist | null>(MUSIC_PLAYLISTS[0] || null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  
+  const [hotkeyToast, setHotkeyToast] = useState<HotkeyToast | null>(null);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
 
   const [isSharedView, setIsSharedView] = useState(false);
+  
+  // Audio pool for fast responsive horn playback
+  const hornAudioPool = useRef<HTMLAudioElement[]>([]);
+  const lastHornIdx = useRef<number>(-1);
+
+  useEffect(() => {
+    // Preload horn audio
+    const hornFiles = HORN_TRACKS.map(h => h.src);
+    hornAudioPool.current = hornFiles.map(src => {
+      const a = new Audio(src);
+      a.preload = 'auto';
+      return a;
+    });
+  }, []);
+
+  const showToast = (_label: string, _icon: string, _sub?: string) => {
+    // Disabled for clean, uncluttered nostalgic atmosphere
+  };
 
   useEffect(() => {
     // Check URL parameters for shared ticket
@@ -139,9 +176,174 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   const triggerHorn = () => {
     setHornActive(true);
     setTimeout(() => setHornActive(false), 2000);
+
+    // Zero-latency horn playback
+    if (hornAudioPool.current.length > 0) {
+      let idx: number;
+      do {
+        idx = Math.floor(Math.random() * hornAudioPool.current.length);
+      } while (idx === lastHornIdx.current && hornAudioPool.current.length > 1);
+      lastHornIdx.current = idx;
+
+      const audio = hornAudioPool.current[idx];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log('Horn audio play caught:', e));
+      }
+    }
+    showToast('HORN OK PLEASE!', '🔊', 'Keyboard [H]');
   };
 
-  // Passenger simulation
+  const triggerDipper = () => {
+    setDipperActive(true);
+    setTimeout(() => setDipperActive(false), 800);
+    showToast('HIGH BEAM DIPPER', '⚡', 'Keyboard [D]');
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(prev => {
+      const next = !prev;
+      showToast(next ? 'MUSIC PLAYING' : 'MUSIC PAUSED', next ? '▶' : '❚❚', 'Keyboard [Space]');
+      return next;
+    });
+  };
+
+  const nextTrack = () => {
+    if (activePlaylist && activePlaylist.tracks.length > 0) {
+      setCurrentTrackIndex(prev => {
+        const nextIdx = (prev + 1) % activePlaylist.tracks.length;
+        const track = activePlaylist.tracks[nextIdx];
+        showToast(track?.title || 'NEXT TRACK', '⏭', track?.artist || 'Keyboard [→]');
+        return nextIdx;
+      });
+      setIsPlaying(true);
+    }
+  };
+
+  const prevTrack = () => {
+    if (activePlaylist && activePlaylist.tracks.length > 0) {
+      setCurrentTrackIndex(prev => {
+        const prevIdx = (prev - 1 + activePlaylist.tracks.length) % activePlaylist.tracks.length;
+        const track = activePlaylist.tracks[prevIdx];
+        showToast(track?.title || 'PREV TRACK', '⏮', track?.artist || 'Keyboard [←]');
+        return prevIdx;
+      });
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleRain = () => {
+    setIsRainy(prev => {
+      const next = !prev;
+      showToast(next ? 'MONSOON RAIN ON' : 'CLEAR NIGHT SKY', next ? '🌧' : '🌙', 'Keyboard [R]');
+      return next;
+    });
+  };
+
+  const toggleZenMode = () => {
+    setIsZenMode(prev => {
+      const next = !prev;
+      showToast(next ? 'ZEN MODE (HUD HIDDEN)' : 'HUD RESTORED', next ? '👁' : '🪟', 'Keyboard [Z]');
+      return next;
+    });
+  };
+
+  // Global Keyboard Shortcuts Listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is currently typing in an input / textarea / select
+      const activeTag = (e.target as HTMLElement)?.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+        return;
+      }
+
+      // 1. Space: Play / Pause music
+      if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault();
+        togglePlay();
+        return;
+      }
+
+      // 2. Arrow Right: Next song
+      if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextTrack();
+        return;
+      }
+
+      // 3. Arrow Left: Previous song
+      if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevTrack();
+        return;
+      }
+
+      // 4. H: Honk Horn
+      if (e.code === 'KeyH' || e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        triggerHorn();
+        return;
+      }
+
+      // 5. D: Dipper / High beam flash
+      if (e.code === 'KeyD' || e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        triggerDipper();
+        return;
+      }
+
+      // 6. R: Toggle Rain
+      if (e.code === 'KeyR' || e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        toggleRain();
+        return;
+      }
+
+      // 7. 1, 2, 3: Switch Views
+      if (e.key === '1') {
+        e.preventDefault();
+        setView('WINDOW');
+        showToast('WINDOW SEAT VIEW', '🪟', 'Keyboard [1]');
+        return;
+      }
+      if (e.key === '2') {
+        e.preventDefault();
+        setView('DRIVER');
+        showToast('DRIVER CABIN VIEW', '🛞', 'Keyboard [2]');
+        return;
+      }
+      if (e.key === '3') {
+        e.preventDefault();
+        setView('LAST_SEAT');
+        showToast('LAST SEAT VIEW', '🚌', 'Keyboard [3]');
+        return;
+      }
+
+      // 8. Z: Zen Mode
+      if (e.code === 'KeyZ' || e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        toggleZenMode();
+        return;
+      }
+
+      // 9. K or ?: Keyboard Shortcuts Cheat Sheet
+      if (e.code === 'KeyK' || e.key.toLowerCase() === 'k' || e.key === '?') {
+        e.preventDefault();
+        setShowShortcutsModal(prev => !prev);
+        return;
+      }
+
+      // 10. Escape: Close modals
+      if (e.key === 'Escape') {
+        setShowShortcutsModal(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePlaylist, currentTrackIndex, isRainy, isZenMode]);
+
+  // Live passenger fluctuation simulation
   useEffect(() => {
     if (appState !== 'JOURNEY') return;
     
@@ -151,7 +353,7 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
         const newCount = prev + change;
         return newCount > 45 ? 45 : (newCount < 35 ? 35 : newCount);
       });
-    }, 45000); // Change passengers randomly every 45s to simulate live journey feel
+    }, 45000);
 
     return () => clearInterval(interval);
   }, [appState]);
@@ -163,14 +365,18 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
       activeRoute, setActiveRoute,
       ticket, generateTicket,
       view, setView,
-      isRainy, setIsRainy,
+      isRainy, setIsRainy, toggleRain,
       hornActive, triggerHorn,
+      dipperActive, triggerDipper,
       passengers,
       isSharedView, setIsSharedView,
       isChaiBreak, setIsChaiBreak,
-      isPlaying, setIsPlaying,
+      isPlaying, setIsPlaying, togglePlay,
       activePlaylist, setActivePlaylist,
-      currentTrackIndex, setCurrentTrackIndex,
+      currentTrackIndex, setCurrentTrackIndex, nextTrack, prevTrack,
+      hotkeyToast,
+      showShortcutsModal, setShowShortcutsModal,
+      isZenMode, setIsZenMode, toggleZenMode,
       ambientVolumes
     }}>
       {children}

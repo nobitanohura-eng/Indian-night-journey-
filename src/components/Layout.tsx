@@ -6,10 +6,9 @@ import { WindowView } from './views/WindowView';
 import { DriverView } from './views/DriverView';
 import { LastSeatView } from './views/LastSeatView';
 import { HUD } from './ui/HUD';
-import { ActiveTravelers } from './ui/ActiveTravelers';
-import { MusicPlayer } from './MusicPlayer';
 import { AudioEngine } from './AudioEngine';
 import { ChaiBreakOverlay } from './ui/ChaiBreakOverlay';
+import { KeyboardShortcutsModal } from './ui/KeyboardShortcutsModal';
 
 export function Layout() {
   const { view, isChaiBreak } = useJourney();
@@ -26,6 +25,9 @@ export function Layout() {
       
       {/* UI Overlay Layer */}
       <HUD />
+
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal />
       
       <AudioEngine />
       <AnimatePresence>
