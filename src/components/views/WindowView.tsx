@@ -4,6 +4,7 @@ import { useJourney } from '../../store/JourneyContext';
 import { BusChassis } from '../effects/BusChassis';
 import { HighwayScenery } from '../effects/HighwayScenery';
 import { CanvasRainLayer } from '../effects/CanvasRainLayer';
+import { getAssetUrl } from '../../utils/assets';
 
 export function WindowView() {
   const { isRainy } = useJourney();
@@ -42,7 +43,7 @@ export function WindowView() {
           animate={{ scale: [1.015, 1.035, 1.015], x: ['0%', '-0.4%', '0%'] }}
           transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute inset-0 bg-cover bg-center opacity-100 origin-center pointer-events-none"
-          style={{ backgroundImage: "url('/window-seat.png')" }}
+          style={{ backgroundImage: `url('${getAssetUrl('/window-seat.png')}')` }}
         />
 
         {/* 3. Window Glass Atmospheric Reflection */}

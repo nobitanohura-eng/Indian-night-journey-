@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Headphones, Radio, CloudRain, Disc, Sparkles, X, Mail, Heart, Bus } from 'lucide-react';
 import { useJourney } from '../store/JourneyContext';
+import { getAssetUrl } from '../utils/assets';
 
 export function SplashScreen() {
   const [isLeaving, setIsLeaving] = useState(false);
@@ -28,7 +29,7 @@ export function SplashScreen() {
               animate={{ scale: [1, 1.04, 1] }}
               transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute inset-0 bg-cover bg-center opacity-90"
-              style={{ backgroundImage: "url('/splash-bg.png')" }}
+              style={{ backgroundImage: `url('${getAssetUrl('/splash-bg.png')}')` }}
             />
 
             {/* Clean atmospheric dark vignette for readable contrast */}

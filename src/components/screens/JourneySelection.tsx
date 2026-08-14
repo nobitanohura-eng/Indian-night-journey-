@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useJourney } from '../../store/JourneyContext';
 import { JOURNEY_DATA, Region, City, Terminal, Destination } from '../../constants/journeyData';
 import { MapPin, ArrowRight, ArrowLeft } from 'lucide-react';
+import { getAssetUrl } from '../../utils/assets';
 
 type Step = 'REGION' | 'CITY' | 'TERMINAL' | 'DESTINATION' | 'SUMMARY';
 
@@ -122,7 +123,7 @@ export function JourneySelection() {
       transition={{ duration: 1 }}
       className="fixed inset-0 z-50 bg-[#070707] flex flex-col p-3 sm:p-4 md:p-8 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] overflow-y-auto"
     >
-      <div className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{ backgroundImage: "url('/splash-bg.png')" }} />
+      <div className="fixed inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{ backgroundImage: `url('${getAssetUrl('/splash-bg.png')}')` }} />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(5,5,5,1)_100%)] pointer-events-none" />
       
       {renderProgress()}

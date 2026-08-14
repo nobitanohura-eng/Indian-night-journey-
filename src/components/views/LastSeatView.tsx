@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BusChassis } from '../effects/BusChassis';
 import { HighwayScenery } from '../effects/HighwayScenery';
+import { getAssetUrl } from '../../utils/assets';
 
 export function LastSeatView() {
   const [showLabel, setShowLabel] = useState(true);
@@ -28,7 +29,7 @@ export function LastSeatView() {
           animate={{ scale: [1.02, 1.05, 1.02], y: ['0%', '1%', '0%'] }}
           transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute inset-0 bg-cover bg-center opacity-100 origin-center pointer-events-none"
-          style={{ backgroundImage: "url('/last-seat.png')" }}
+          style={{ backgroundImage: `url('${getAssetUrl('/last-seat.png')}')` }}
         />
         
         {/* 3. Hindi Nostalgic Atmospheric Intro */}

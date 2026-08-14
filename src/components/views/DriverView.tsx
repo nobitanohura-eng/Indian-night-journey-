@@ -4,6 +4,7 @@ import { useJourney } from '../../store/JourneyContext';
 import { BusChassis } from '../effects/BusChassis';
 import { HighwayScenery } from '../effects/HighwayScenery';
 import { CanvasRainLayer } from '../effects/CanvasRainLayer';
+import { getAssetUrl } from '../../utils/assets';
 
 export function DriverView() {
   const { hornActive, triggerHorn, dipperActive, triggerDipper, isRainy } = useJourney();
@@ -34,7 +35,7 @@ export function DriverView() {
           animate={{ scale: [1.015, 1.035, 1.015], y: ['0%', '0.4%', '0%'] }}
           transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
           className="absolute inset-0 bg-cover bg-center opacity-100 origin-center pointer-events-none z-5"
-          style={{ backgroundImage: "url('/driver-seat.png')" }}
+          style={{ backgroundImage: `url('${getAssetUrl('/driver-seat.png')}')` }}
         />
 
         {/* 3. Driver Windshield Raindrops */}
